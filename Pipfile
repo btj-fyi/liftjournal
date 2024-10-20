@@ -5,6 +5,8 @@ name = "pypi"
 
 [packages]
 pyre-check = "*"
+flask-sqlalchemy = "*"
+flask = "*"
 
 [dev-packages]
 

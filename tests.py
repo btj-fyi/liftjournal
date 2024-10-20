@@ -24,5 +24,10 @@ class TestLJWorkout(unittest.TestCase):
         self.assertEqual(self.workout.set_groups, [set_group])
 
 
+class TestLJExercise(unittest.TestCase):
+    def setUp(self) -> None:
+        self.exercise
+
+
 if __name__ == "main":
     unittest.main()
