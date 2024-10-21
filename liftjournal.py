@@ -1,26 +1,28 @@
 import typing as t
-from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy import ForeignKey, StaticPool, select
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import create_engine
 from sqlalchemy.orm import (
-    relationship,
+    DeclarativeBase,
+    Mapped,
     mapped_column,
+    relationship,
     Session,
 )
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, StaticPool, select, create_engine
+from flask import Flask, redirect, render_template, request, url_for
+from flask_sqlalchemy import SQLAlchemy
 
 
 class Base(DeclarativeBase):
     pass
 
 
-class LJWorkout(Base):
+db = SQLAlchemy(model_class=Base)
+
+
+class LJWorkout(db.Model):
     """
     SQLAlchemy model based on 'LJWorkout'
     """
 
-    __tablename__ = "lj_workout"
     id: Mapped[int] = mapped_column(primary_key=True)
     exercises: Mapped[t.List["LJExercise"]] = relationship()
 
@@ -35,27 +37,25 @@ EXERCISE_NAMES: list = [
 ]
 
 
-class LJExercise(Base):
+class LJExercise(db.Model):
     """
     SQLAlchemy model based on 'LJExercise'
     """
 
-    __tablename__ = "lj_exercise"
     id: Mapped[int] = mapped_column(primary_key=True)
     workout_id: Mapped[int] = mapped_column(ForeignKey("lj_workout.id"))
     name: Mapped[str] = mapped_column()
     sets: Mapped[t.List["LJSet"]] = relationship()
 
     def __repr__(self) -> str:
-        return f"<LJSet(id={self.id}, workout_id={self.workout_id}, name={self.name})>"
+        return f"<LJExercise(id={self.id}, workout_id={self.workout_id}, name={self.name})>"
 
 
-class LJSet(Base):
+class LJSet(db.Model):
     """
     SQLAlchemy model based on 'LJSet'
     """
 
-    __tablename__ = "lj_set"
     id: Mapped[int] = mapped_column(primary_key=True)
     exercise_id: Mapped[int] = mapped_column(ForeignKey("lj_exercise.id"))
     weight: Mapped[int]
@@ -65,40 +65,58 @@ class LJSet(Base):
         return f"<LJSet(id={self.id}, exercise_id={self.exercise_id}, weight={self.weight}, reps={self.reps})>"
 
 
-def main() -> None:
-    engine = create_engine(
-        "sqlite:////mnt/c/Users/hooty/test.db", echo=True, poolclass=StaticPool
-    )
+app = Flask(__name__)
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////mnt/c/Users/hooty/test.db"
+db.init_app(app)
 
-    Base.metadata.create_all(engine)
-
-    with Session(engine) as s:
-        workout1 = LJWorkout()
-        print(workout1.exercises)
-        exercise1 = LJExercise(name="squat")
-        exercise1.sets.extend(
-            [
-                LJSet(weight=135, reps=5),
-                LJSet(weight=185, reps=5),
-                LJSet(weight=225, reps=5),
-            ]
-        )
-        exercise2 = LJExercise(name="bench")
-        exercise2.sets.extend([LJSet(weight=135, reps=5), LJSet(weight=185, reps=5)])
-        workout1.exercises.extend([exercise1, exercise2])
-        print(workout1.exercises)
-
-        s.add(workout1)
-        s.commit()
-
-        for row in s.execute(
-            select(LJSet)
-            .select_from(LJExercise)
-            .join(LJSet)
-            .where(LJExercise.name == "squat")
-        ):
-            print(row[0])
+with app.app_context():
+    db.create_all()
 
 
-if __name__ == "__main__":
-    main()
+@app.route("/home")
+def home():
+    return render_template("home.html", workouts=None, workout=None)
+
+
+@app.route("/load_workouts", methods=["POST"])
+def get_workouts():
+    workouts = db.session.execute(db.select(LJWorkout)).scalars()
+    return render_template("home.html", workouts=workouts)
+
+
+@app.route("/load_workout", methods=["POST"])
+def get_workout():
+    workout_id: str = request.form["workout_id"]
+    app.logger.debug(workout_id)
+    workouts = db.session.execute(db.select(LJWorkout)).scalars()
+    workout = db.session.execute(
+        db.select(LJWorkout).where(LJWorkout.id == workout_id)
+    ).scalar()
+    return render_template("home.html", workouts=workouts, workout=workout)
+
+
+@app.route("/workouts/create", methods=["GET", "POST"])
+def workout_create():
+    if request.method == "POST":
+        workout = LJWorkout()
+        db.session.add(workout)
+        db.session.commit()
+        return redirect(url_for("workout_detail", id=workout.id))
+    return render_template("workout/create.html")
+
+
+@app.route("/workout/<int:id>")
+def workout_detail(id):
+    workout: LJWorkout = db.get_or_404(LJWorkout, id)
+    return render_template("workout/detail.html", workout=workout)
+
+
+@app.route("/workout/<int:id>/delete")
+def workout_delete(id):
+    workout = db.get_or_404(LJWorkout, id)
+    if request.method == "POST":
+        db.session.delete(workout)
+        db.session.commit()
+        return redirect(url_for("workout_list"))
+
+    return render_template("workout/delete.html", workout=workout)
