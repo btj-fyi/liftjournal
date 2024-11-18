@@ -73,9 +73,39 @@ with app.app_context():
     db.create_all()
 
 
+@app.route("/login")
+def login():
+    return render_template("login.html")
+
+
 @app.route("/home")
 def home():
     return render_template("home.html", workouts=None, workout=None)
+
+
+@app.route("/mystats")
+def mystats():
+    return render_template("mystats.html")
+
+
+@app.route("/myworkouts")
+def myworkouts():
+    return render_template("myworkouts.html")
+
+
+@app.route("/new_exercise")
+def new_exercise():
+    return render_template("new_exercise.html")
+
+
+@app.route("/new_workout")
+def new_workout():
+    return render_template("new_workout.html")
+
+
+@app.route("/workout")
+def workout():
+    return render_template("workout.html")
 
 
 @app.route("/load_workouts", methods=["POST"])

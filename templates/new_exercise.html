@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+    </head>
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+            <a class="navbar-item">Lift Journal</a>
+        </div>
+    </nav>
+    <div class="column is-one-quarter">
+        <div class="block">
+            <h1 class="title">&lt;excercise_name&gt;</h1>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th><abbr title="Set #">Set #</abbr></th>
+                        <th><abbr title="Reps">Reps</abbr></th>
+                        <th><abbr title="Weight">Weight</abbr></th>
+                    </tr>
+                </thead>
+                <tfoot></tfoot>
+                <tbody>
+                    <tr>
+                        <th>1</th>
+                        <td>10</td>
+                        <td>135</td>
+                    </tr>
+                    <tr>
+                        <th>2</th>
+                        <td>10</td>
+                        <td>135</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="block">
+            <h1 class="title">New Set</h1>
+            <div class="field">
+                <p class="control">
+                    <input class="input" type="text" placeholder="reps">
+                </p>
+            </div>
+            <div class="field">
+                <div class="control">
+                    <input class="input" type="text" placeholder="lbs">
+                </div>
+            </div>
+        </div>
+        <div class="buttons">
+            <button class="button is-success">Save Set</button>
+            <button class="button is-danger">End Exercise</button>
+        </div>
+    </div>
+</html>
