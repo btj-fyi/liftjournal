@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
-  </head>
-  <body>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+    </head>
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+            <a class="navbar-item">Lift Journal</a>
+        </div>
+    </nav>
     <div class="section">
       <form method="POST" action="/load_workouts">
         <div class="field">
@@ -38,7 +42,7 @@
                 {% for exercise in workout.exercises %}
                   {{ exercise }} 
                   {% for set in exercise.sets %}
-                    {{ set }}
+                 >   {{ set }}
                   {% endfor %}
                 {% endfor %}
               {% endif %} 
@@ -47,5 +51,4 @@
         </div>
       </div>
     </div>
-  </body>
 </html>

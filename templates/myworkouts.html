@@ -13,16 +13,23 @@
     <div class="column is-one-quarter">
         <h1 class="title">My Workouts</h1>
         <div class="block">
-            <button class="button is-success">New Workout</button>
+            <form method="POST" action="/new_workout">
+                <button class="button is-success">New Workout</button>
+            </form>
+            
         </div>
+        {% if workouts %}
         <div class="fixed-grid has-0-cols">
             <div class="grid">
                 <div class="buttons">
-                    <button class="button">Workout 1</button>
-                    <button class="button">Workout 2</button>
-                    <button class="button">Workout n</button>
+                    {% for workout in workouts %}
+                    <form method="POST" action="/workout?workout_id={{ workout.id }}">
+                        <button class="button">Workout {{ workout.date }}</button>
+                    </form>
+                    {% endfor %}
                 </div>
             </div>
         </div>
+        {% endif %}
     </div>
 </html>

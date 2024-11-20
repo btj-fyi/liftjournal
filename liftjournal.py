@@ -1,3 +1,4 @@
+from datetime import datetime
 import typing as t
 from sqlalchemy.orm import (
     DeclarativeBase,
@@ -6,7 +7,7 @@ from sqlalchemy.orm import (
     relationship,
     Session,
 )
-from sqlalchemy import ForeignKey, StaticPool, select, create_engine
+from sqlalchemy import Date, ForeignKey, StaticPool, select, create_engine
 from flask import Flask, redirect, render_template, request, url_for
 from flask_sqlalchemy import SQLAlchemy
 
@@ -24,6 +25,7 @@ class LJWorkout(db.Model):
     """
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    date: Mapped[datetime.date] = mapped_column(Date, default=(datetime.now()).date())
     exercises: Mapped[t.List["LJExercise"]] = relationship()
 
     def __repr__(self) -> str:
@@ -66,7 +68,7 @@ class LJSet(db.Model):
 
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////mnt/c/Users/hooty/test.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////mnt/c/Users/hooty/liftjournal.db"
 db.init_app(app)
 
 with app.app_context():
@@ -90,7 +92,8 @@ def mystats():
 
 @app.route("/myworkouts")
 def myworkouts():
-    return render_template("myworkouts.html")
+    workouts = db.session.execute(db.select(LJWorkout)).scalars()
+    return render_template("myworkouts.html", workouts=workouts)
 
 
 @app.route("/new_exercise")
@@ -98,14 +101,19 @@ def new_exercise():
     return render_template("new_exercise.html")
 
 
-@app.route("/new_workout")
+@app.route("/new_workout", methods=["POST"])
 def new_workout():
     return render_template("new_workout.html")
 
 
-@app.route("/workout")
+@app.route("/workout", methods=["POST"])
 def workout():
-    return render_template("workout.html")
+    workout_id: str = request.args.get("workout_id")
+    app.logger.debug(workout_id)
+    workout = db.session.execute(
+        db.select(LJWorkout).where(LJWorkout.id == workout_id)
+    ).scalar()
+    return render_template("workout.html", workout=workout)
 
 
 @app.route("/load_workouts", methods=["POST"])
