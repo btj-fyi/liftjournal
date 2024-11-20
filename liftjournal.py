@@ -26,6 +26,9 @@ class LJWorkout(db.Model):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     date: Mapped[datetime.date] = mapped_column(Date, default=(datetime.now()).date())
+    updated_at: Mapped[datetime.time] = mapped_column(
+        TIMESTAMP, default=(datetime.now().timestamp())
+    )
     exercises: Mapped[t.List["LJExercise"]] = relationship()
 
     def __repr__(self) -> str:
