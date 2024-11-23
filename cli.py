@@ -48,7 +48,7 @@ def get_workouts() -> None:
             click.echo(workout)
 
 
-@cli.comamnd()
+@cli.command()
 def add_exercise() -> None:
     pass
 

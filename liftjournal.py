@@ -7,7 +7,17 @@ from sqlalchemy.orm import (
     relationship,
     Session,
 )
-from sqlalchemy import Date, ForeignKey, StaticPool, select, create_engine
+from sqlalchemy import (
+    Date,
+    DateTime,
+    Float,
+    Integer,
+    func,
+    ForeignKey,
+    StaticPool,
+    select,
+    create_engine,
+)
 from flask import Flask, redirect, render_template, request, url_for
 from flask_sqlalchemy import SQLAlchemy
 
@@ -25,9 +35,11 @@ class LJWorkout(db.Model):
     """
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    date: Mapped[datetime.date] = mapped_column(Date, default=(datetime.now()).date())
-    updated_at: Mapped[datetime.time] = mapped_column(
-        TIMESTAMP, default=(datetime.now().timestamp())
+    date: Mapped[datetime.date] = mapped_column(
+        Date, default=datetime.now().date(), nullable=False
+    )
+    updated_at: Mapped[float] = mapped_column(
+        Float, default=datetime.now().timestamp(), onupdate=datetime.now().timestamp()
     )
     exercises: Mapped[t.List["LJExercise"]] = relationship()
 
@@ -49,6 +61,9 @@ class LJExercise(db.Model):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     workout_id: Mapped[int] = mapped_column(ForeignKey("lj_workout.id"))
+    updated_at: Mapped[float] = mapped_column(
+        Float, default=datetime.now().timestamp(), onupdate=datetime.now().timestamp()
+    )
     name: Mapped[str] = mapped_column()
     sets: Mapped[t.List["LJSet"]] = relationship()
 
@@ -63,6 +78,9 @@ class LJSet(db.Model):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     exercise_id: Mapped[int] = mapped_column(ForeignKey("lj_exercise.id"))
+    updated_at: Mapped[float] = mapped_column(
+        Float, default=datetime.now().timestamp(), onupdate=datetime.now().timestamp()
+    )
     weight: Mapped[int]
     reps: Mapped[int]
 
