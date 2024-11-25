@@ -9,6 +9,29 @@
         <div class="navbar-brand">
             <a class="navbar-item" href="/home">Lift Journal</a>
         </div>
+        <div id="navbar menu" class="navbar-menu">
+            <div class="navbar-start">
+                <div class="navbar-item has-dropdown is-hoverable">
+                    <a class="navbar-link">Pages</a>
+                    <div class="navbar-dropdown">
+                        <a class="navbar-item" href="/home">Home</a>
+                        <a class="navbar-item" href="/myworkouts">My Workouts</a>
+                        <a class="navbar-item"href="/new_workout">New Workout</a>
+                        <a class="navbar-item"href="/mystats">My Stats</a>
+                        <a class="navbar-item"href="/new_exercise">new_exercise</a>
+                    </div>
+                </div>
+            </div>
+            <div class="navbar-end">
+                <div class="navbar-item">
+                    <div class="buttons">
+                        <a class="button is-primary" href="/login">
+                            Login
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </nav>
     <div class="section">
       <form method="POST" action="/load_workouts">

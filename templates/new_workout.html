@@ -5,33 +5,66 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
     </head>
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+    </head>
     <nav class="navbar" role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
             <a class="navbar-item" href="/home">Lift Journal</a>
+        </div>
+        <div id="navbar menu" class="navbar-menu">
+            <div class="navbar-start">
+                <div class="navbar-item has-dropdown is-hoverable">
+                    <a class="navbar-link">Pages</a>
+                    <div class="navbar-dropdown">
+                        <a class="navbar-item" href="/home">Home</a>
+                        <a class="navbar-item" href="/myworkouts">My Workouts</a>
+                        <a class="navbar-item"href="/new_workout">New Workout</a>
+                        <a class="navbar-item"href="/mystats">My Stats</a>
+                        <a class="navbar-item"href="/new_exercise">new_exercise</a>
+                    </div>
+                </div>
+            </div>
+            <div class="navbar-end">
+                <div class="navbar-item">
+                    <div class="buttons">
+                        <a class="button is-primary" href="/login">
+                            Login
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
     </nav>
     <div class="column is-one-quarter">
         <div class="block">
             <h1 class="title">New Workout</h1>
         </div>
-        <div class="block">
-            <div class="field">
-                <label class="label">Exercise Name</label>
-                <div class="control">
-                    <select>
-                        <option>Exercise A</option>
-                        <option>Exercise B</option>
-                        <option>Exercise X</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-        <div class="fixed-grid has-0-cols">
-            <div class="grid">
-                <div class="buttons">
-                    <button class="button is-success">Add Exercise</button>
-                    <button class="button is-danger">End Workout</button>
-                </div>
+        <div class="block">        
+            <div class="buttons">
+                <form method="POST" action="/new_exercise?workout_id={{ workout_id }}">
+                    <div class="field">
+                        <label class="label">Select an Exercise</label>
+                        <div class="control">
+                            <div class="select">
+                                <select name="exercise_name">
+                                {% for exercise_name in exercise_names %}
+                                    <option value="{{ exercise_name }}">{{ exercise_name }}</option>
+                                {% endfor %}                                    
+                                </select>
+                            </div>
+                        </div>
+                    </div>    
+                    <div class="field">
+                        <div class="control">
+                            <button type="submit" class="button is-primary">New Exercise</button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

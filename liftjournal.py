@@ -48,9 +48,9 @@ class LJWorkout(db.Model):
 
 
 EXERCISE_NAMES: list = [
-    "squat",
-    "deadlift",
-    "bench",
+    "Squat",
+    "Deadlift",
+    "Bench",
 ]
 
 
@@ -64,7 +64,7 @@ class LJExercise(db.Model):
     updated_at: Mapped[float] = mapped_column(
         Float, default=datetime.now().timestamp(), onupdate=datetime.now().timestamp()
     )
-    name: Mapped[str] = mapped_column()
+    name: Mapped[str] = mapped_column(nullable=False)
     sets: Mapped[t.List["LJSet"]] = relationship()
 
     def __repr__(self) -> str:
@@ -81,8 +81,8 @@ class LJSet(db.Model):
     updated_at: Mapped[float] = mapped_column(
         Float, default=datetime.now().timestamp(), onupdate=datetime.now().timestamp()
     )
-    weight: Mapped[int]
-    reps: Mapped[int]
+    weight: Mapped[int] = mapped_column(nullable=False)
+    reps: Mapped[int] = mapped_column(nullable=False)
 
     def __repr__(self) -> str:
         return f"<LJSet(id={self.id}, exercise_id={self.exercise_id}, weight={self.weight}, reps={self.reps})>"
@@ -117,14 +117,84 @@ def myworkouts():
     return render_template("myworkouts.html", workouts=workouts)
 
 
-@app.route("/new_exercise")
-def new_exercise():
-    return render_template("new_exercise.html")
-
-
 @app.route("/new_workout", methods=["POST"])
 def new_workout():
-    return render_template("new_workout.html")
+    new_workout = LJWorkout()
+    db.session.add(new_workout)
+    db.session.commit()
+    app.logger.debug(new_workout)
+    return render_template(
+        "new_exercise.html",
+        workout_id=new_workout.id,
+        exercise_names=EXERCISE_NAMES,
+        exercise_name=None,
+    )
+
+
+@app.route("/new_exercise", methods=["POST"])
+def new_exercise():
+    # if not exercise select and reload
+    workout_id: str = request.args.get("workout_id")
+    app.logger.debug(workout_id)
+    exercise_name: str = request.form.get("exercise_name")
+    if exercise_name:
+        app.logger.debug(exercise_name)
+        new_exercise = LJExercise(workout_id=workout_id, name=exercise_name)
+        db.session.add(new_exercise)
+        db.session.commit()
+        sets = db.session.execute(
+            db.select(LJSet).where(LJSet.exercise_id == new_exercise.id)
+        ).scalars()
+        return render_template(
+            "new_exercise.html",
+            workout_id=workout_id,
+            exercise=new_exercise,
+            sets=sets,
+        )
+
+    return render_template(
+        "new_exercise.html",
+        workout_id=workout_id,
+        exercise_name=None,
+        exercise=None,
+        sets=[],
+        exercise_names=EXERCISE_NAMES,
+    )
+
+
+app.route("/select_new_exercise", methods=["POST"])
+
+
+def select_new_exercise():
+    pass
+
+
+@app.route("/new_set", methods=["POST"])
+def new_set():
+    workout_id: str = request.args.get("workout_id")
+    app.logger.debug("workout_id =", workout_id)
+
+    exercise_id = request.args.get("exercise_id")
+    app.logger.debug("exercise_id =", exercise_id)
+
+    reps = request.form.get("reps")
+    weight = request.form.get("weight")
+
+    new_set = LJSet(exercise_id=exercise_id, reps=reps, weight=weight)
+    db.session.add(new_set)
+    db.session.commit()
+
+    exercise = db.session.execute(
+        db.select(LJExercise).where(LJExercise.id == exercise_id)
+    ).scalar()
+
+    sets = db.session.execute(
+        db.select(LJSet).where(LJSet.exercise_id == exercise_id)
+    ).scalars()
+
+    return render_template(
+        "new_exercise.html", workout_id=workout_id, exercise=exercise, sets=sets
+    )
 
 
 @app.route("/workout", methods=["POST"])

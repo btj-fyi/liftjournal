@@ -5,14 +5,67 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
     </head>
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+    </head>
     <nav class="navbar" role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
             <a class="navbar-item" href="/home">Lift Journal</a>
         </div>
+        <div id="navbar menu" class="navbar-menu">
+            <div class="navbar-start">
+                <div class="navbar-item has-dropdown is-hoverable">
+                    <a class="navbar-link">Pages</a>
+                    <div class="navbar-dropdown">
+                        <a class="navbar-item" href="/home">Home</a>
+                        <a class="navbar-item" href="/myworkouts">My Workouts</a>
+                        <a class="navbar-item"href="/new_workout">New Workout</a>
+                        <a class="navbar-item"href="/mystats">My Stats</a>
+                        <a class="navbar-item"href="/new_exercise">new_exercise</a>
+                    </div>
+                </div>
+            </div>
+            <div class="navbar-end">
+                <div class="navbar-item">
+                    <div class="buttons">
+                        <a class="button is-primary" href="/login">
+                            Login
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </nav>
     <div class="column is-one-quarter">
+        <h1 class="title">New Exercise {{ workout_id }}</h1>
+        {% if exercise_name == None %}
+        <form method="POST" action="/new_exercise?workout_id={{ workout_id }}">
+            <div class="field">
+                <label class="label">Select an Exercise</label>
+                <div class="control">
+                    <div class="select">
+                        <select name="exercise_name">
+                        {% for exercise_name in exercise_names %}
+                            <option value="{{ exercise_name }}">{{ exercise_name }}</option>
+                        {% endfor %}                                    
+                        </select>
+                    </div>
+                </div>
+            </div>    
+            <div class="field">
+                <div class="control">
+                    <button type="submit" class="button is-primary">New Exercise</button>
+                </div>
+            </div>
+        </form>
+        {% endif %}
+        {% if exercise %}
         <div class="block">
-            <h1 class="title">&lt;excercise_name&gt;</h1>
+            <h1 class="title">{{ exercise.name }}</h1>
             <table class="table">
                 <thead>
                     <tr>
@@ -23,35 +76,44 @@
                 </thead>
                 <tfoot></tfoot>
                 <tbody>
+                    {% for set in sets %}
                     <tr>
-                        <th>1</th>
-                        <td>10</td>
-                        <td>135</td>
+                        <th>{{ loop.index }}</th>
+                        <td>{{ set.reps }}</td>
+                        <td>{{ set.weight }}</td>
                     </tr>
-                    <tr>
-                        <th>2</th>
-                        <td>10</td>
-                        <td>135</td>
-                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
         <div class="block">
-            <h1 class="title">New Set</h1>
-            <div class="field">
-                <p class="control">
-                    <input class="input" type="text" placeholder="reps">
-                </p>
-            </div>
-            <div class="field">
-                <div class="control">
-                    <input class="input" type="text" placeholder="lbs">
+            <form method="POST" action="/new_set?workout_id={{ workout_id }}&exercise_id={{exercise.id}}">
+                <div class="field">
+                    <p class="control">
+                        <input class="input" type="text" name="reps" placeholder="reps">
+                    </p>
                 </div>
-            </div>
+                <div class="field">
+                    <div class="control">
+                        <input class="input" type="text" name="weight" placeholder="lbs">
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="control">
+                        <button type="submit" class="button is-success">Add Set</button>
+                    </div>
+                </div>
+            </form>
         </div>
-        <div class="buttons">
-            <button class="button is-success">Save Set</button>
-            <button class="button is-danger">End Exercise</button>
+        <div class="block">
+            <form method="POST" action="/new_exercise?workout_id={{ workout_id }}">
+                <div class="field">
+                    <div class="control">
+                        <button type="submit" class="button is-danger">End Exercise</button>
+                    </div>
+                </div>
+            </form>
         </div>
+        {% endif %}
     </div>
 </html>
